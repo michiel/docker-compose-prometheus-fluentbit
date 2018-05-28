@@ -1,0 +1,26 @@
+version: '2'
+
+services:
+  splunk:
+    hostname: splunk
+    image: splunk/splunk:7.0.3
+    environment:
+      SPLUNK_START_ARGS: --accept-license
+      SPLUNK_CMD: 'edit user admin -password admin -role admin -auth admin:changeme'
+      SPLUNK_ENABLE_LISTEN: 9997
+    ports:
+      - "8000:8000" # splunk UI
+      - "8088:8088" # splunk HEC
+    volumes:
+      - "./splunk-apps/demo_uf:/opt/splunk/etc/apps/demo_uf"
+      - "./splunk-apps/demo_idx:/opt/splunk/etc/apps/demo_idx"
+      - "./splunk-apps/demo_shc:/opt/splunk/etc/apps/demo_shc"
+
+  fluentbit:
+     hostname: fluentbit
+     image: fluent/fluent-bit:0.13.2
+     links:
+       - "splunk"
+     volumes:
+       - "./volumes/fluent-bit-etc:/fluent-bit/etc"
+
